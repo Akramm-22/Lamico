@@ -7,15 +7,10 @@ use Illuminate\Http\Request;
 
 class SensorController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->search;
-
-        $sensors = Sensor::when($search, function ($query, $search) {
-            $query->where('nama_sensor', 'like', "%$search%");
-        })->latest()->get();
-
-        return view('sensor.index', compact('sensors', 'search'));
+        $sensors = Sensor::latest()->paginate(5);
+        return view('sensor.index', compact('sensors'));
     }
 
     public function create()
@@ -26,14 +21,18 @@ class SensorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_sensor' => 'required',
-            'data' => 'required|numeric'
+            'nama_sensor' => 'required|string|max:255',
+            'data'        => 'required|numeric',
+        ], [
+            'nama_sensor.required' => 'Nama sensor wajib diisi.',
+            'data.required'        => 'Data wajib diisi.',
+            'data.numeric'         => 'Data harus berupa angka.',
         ]);
 
-        Sensor::create($request->all());
+        Sensor::create($request->only('nama_sensor', 'data'));
 
         return redirect()->route('sensor.index')
-            ->with('success', 'Data sensor berhasil ditambahkan');
+            ->with('success', 'Berhasil menambahkan data sensor');
     }
 
     public function edit(Sensor $sensor)
@@ -44,14 +43,18 @@ class SensorController extends Controller
     public function update(Request $request, Sensor $sensor)
     {
         $request->validate([
-            'nama_sensor' => 'required',
-            'data' => 'required|numeric'
+            'nama_sensor' => 'required|string|max:255',
+            'data'        => 'required|numeric',
+        ], [
+            'nama_sensor.required' => 'Nama sensor wajib diisi.',
+            'data.required'        => 'Data wajib diisi.',
+            'data.numeric'         => 'Data harus berupa angka.',
         ]);
 
-        $sensor->update($request->all());
+        $sensor->update($request->only('nama_sensor', 'data'));
 
         return redirect()->route('sensor.index')
-            ->with('success', 'Data sensor berhasil diupdate');
+            ->with('success', 'Berhasil mengubah data sensor');
     }
 
     public function destroy(Sensor $sensor)
@@ -59,7 +62,6 @@ class SensorController extends Controller
         $sensor->delete();
 
         return redirect()->route('sensor.index')
-            ->with('success', 'Data sensor berhasil dihapus');
+            ->with('success', 'Berhasil menghapus data sensor');
     }
 }
-

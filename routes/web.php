@@ -2,23 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SensorController;
+use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DashboardController;
 
-// redirect halaman utama
 Route::get('/', function () {
-    return redirect('/sensor');
+    return redirect()->route('dashboard');
 });
 
-// Sensor aja
+// Dashboard & IoT Control
+Route::get('/dashboard',          [DashboardController::class, 'index'])->name('dashboard');
+Route::post('/dashboard/lcd',     [DashboardController::class, 'sendLcd'])->name('dashboard.lcd');
+Route::post('/dashboard/servo',   [DashboardController::class, 'sendServo'])->name('dashboard.servo');
+Route::get('/api/sensor-data',    [DashboardController::class, 'sensorData'])->name('api.sensor');
 
-// tampil data sensor
-Route::get('/sensor', [SensorController::class, 'index'])->name('sensor.index');
-// form tambah data
-Route::get('/sensor/create', [SensorController::class, 'create'])->name('sensor.create');
-// simpan data
-Route::post('/sensor', [SensorController::class, 'store'])->name('sensor.store');
-// form edit data
-Route::get('/sensor/{id}/edit', [SensorController::class, 'edit'])->name('sensor.edit');
-// update data
-Route::put('/sensor/{id}', [SensorController::class, 'update'])->name('sensor.update');
-// hapus data
-Route::delete('/sensor/{id}', [SensorController::class, 'destroy'])->name('sensor.destroy');
+// CRUD Sensor & Device (sudah ada sebelumnya)
+Route::resource('sensor', SensorController::class)->except(['show']);
+Route::resource('device', DeviceController::class)->except(['show']);
